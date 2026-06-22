@@ -7,7 +7,8 @@ Configuration is loaded from JSON plus environment variables. The example file i
 ```powershell
 python -m venv .venv
 .\.venv\Scripts\Activate.ps1
-python -m pip install -e .
+python -m pip install --upgrade pip
+python -m pip install -e ".[dev]"
 ```
 
 ## Required runtime values

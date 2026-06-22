@@ -21,7 +21,8 @@ Run these commands from Windows PowerShell at the repository root:
 ```powershell
 python -m venv .venv
 .\.venv\Scripts\Activate.ps1
-python -m pip install -e .
+python -m pip install --upgrade pip
+python -m pip install -e ".[dev]"
 python -m pytest
 python -m src.intake.pipeline
 .\scripts\validate.ps1
