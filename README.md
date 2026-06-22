@@ -7,12 +7,12 @@ MVP backend logic for converting Outlook/Microsoft Graph email payloads into str
 - Outlook payload normalization with attachment metadata, recipients, message IDs, conversation IDs, and URL extraction.
 - Deterministic rules for CI failures, VM requests, access requests, license requests, new-project requests, incidents, organizational mail, general support, and manual triage.
 - Jira key detection using `\b[A-Z][A-Z0-9]+-\d+\b`.
-- Duplicate correlation by mailbox/message ID and normalized fingerprints.
+- Duplicate correlation by mailbox/message ID, conversation ID, and normalized fingerprints.
 - Config-driven Jira issue payload generation.
 - Required-field and missing-information logic.
 - Auto-reply templates for common lifecycle events.
 - Jenkins, GitHub Actions, GitLab CI, and Azure DevOps enrichment extension points.
-- Structured logging helpers with secret redaction.
+- Structured logging helpers plus secret redaction for common password/token/header patterns.
 
 ## Windows quick start
 

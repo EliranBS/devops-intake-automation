@@ -3,7 +3,7 @@ from datetime import datetime
 import re
 from html import unescape
 from src.intake.models import AttachmentMetadata, NormalizedEmail
-from src.intake.security import redact_secrets
+from src.intake.security import redact_mapping, redact_secrets
 
 URL_RE = re.compile(r"https?://[^\s<>'\"]+")
 
@@ -48,5 +48,5 @@ def normalize_outlook_message(payload: dict, source_mailbox: str) -> NormalizedE
         received_datetime=_dt(payload.get("receivedDateTime")),
         attachments=attachments,
         links=sorted(set(URL_RE.findall(text_for_links))),
-        raw=payload,
+        raw=redact_mapping(payload),
     )

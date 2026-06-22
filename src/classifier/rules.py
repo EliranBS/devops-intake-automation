@@ -27,7 +27,7 @@ def _extract(text: str, email: NormalizedEmail) -> dict:
         "ram": r"\b(?:ram|memory)\s*[:=-]\s*([\w .-]+)", "disk": r"\bdisk\s*[:=-]\s*([\w .-]+)",
         "expiry_date": r"expir(?:y|es|ation)\s*[:=-]\s*([\w ./-]+)", "approver": r"approver\s*[:=-]\s*([\w .@-]+)",
         "repository": r"\b(?:repo|repository)\s*[:=-]\s*([\w ./:-]+)", "branch": r"branch\s*[:=-]\s*([\w ./-]+)",
-        "commit_sha": r"\b[0-9a-f]{7,40}\b", "product": r"product\s*[:=-]\s*([\w .-]+)",
+        "commit_sha": r"(?:commit(?: sha)?\s*[:=-]\s*)?([0-9a-f]{7,40})", "product": r"product\s*[:=-]\s*([\w .-]+)",
         "justification": r"justification\s*[:=-]\s*([^\n]+)", "system": r"\b(?:system|app|application)\s*[:=-]\s*([\w .-]+)",
         "access_level": r"access(?: level)?\s*[:=-]\s*([\w .-]+)", "project_name": r"project name\s*[:=-]\s*([\w .-]+)",
         "owner": r"owner\s*[:=-]\s*([\w .@-]+)", "repo_platform": r"repo platform\s*[:=-]\s*([\w .-]+)",
@@ -38,10 +38,14 @@ def _extract(text: str, email: NormalizedEmail) -> dict:
         m = re.search(p, text, re.I)
         if m:
             fields[k] = m.group(1).strip() if m.lastindex else m.group(0)
+    ci_tools = {"jenkins": "Jenkins", "github.com": "GitHub Actions", "gitlab": "GitLab CI", "dev.azure.com": "Azure DevOps"}
     for link in email.links:
         l = link.lower()
-        if any(x in l for x in ["jenkins", "github.com", "gitlab", "dev.azure.com"]):
-            fields.setdefault("build_url", link); fields.setdefault("ci_tool", "Jenkins" if "jenkins" in l else "GitHub Actions" if "github" in l else "GitLab CI" if "gitlab" in l else "Azure DevOps")
+        for marker, tool in ci_tools.items():
+            if marker in l:
+                fields.setdefault("build_url", link)
+                fields.setdefault("ci_tool", tool)
+                break
     return fields
 
 def classify_email(email: NormalizedEmail) -> ClassificationResult:
