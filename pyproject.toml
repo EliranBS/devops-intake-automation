@@ -1,0 +1,9 @@
+[project]
+name = "devops-intake-automation"
+version = "0.1.0"
+description = "MVP backend logic for Outlook-to-Jira DevOps intake automation"
+requires-python = ">=3.11"
+
+[tool.pytest.ini_options]
+pythonpath = ["."]
+testpaths = ["tests"]
