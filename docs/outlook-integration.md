@@ -1,6 +1,6 @@
 # Outlook Integration
 
-The MVP expects Microsoft Graph-like message JSON. Power Automate or an Azure Function can pass message metadata into `normalize_outlook_message`.
+The MVP expects Microsoft Graph-like message JSON. Power Automate or an Azure Function can pass message metadata into `normalize_outlook_message`. The default operating environment for local tooling is Windows PowerShell.
 
 ## Recommended fields
 
@@ -11,6 +11,13 @@ The MVP expects Microsoft Graph-like message JSON. Power Automate or an Azure Fu
 - `from`, `toRecipients`, `ccRecipients`
 - `subject`, `bodyPreview`, `body.content`
 - attachment metadata only; avoid storing full attachment contents in intake logs
+
+## Local validation from Windows PowerShell
+
+```powershell
+python -m src.intake.pipeline
+.\scripts\run-local-demo.ps1
+```
 
 ## Permissions notes
 

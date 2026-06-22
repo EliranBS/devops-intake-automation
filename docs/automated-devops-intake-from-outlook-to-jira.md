@@ -1,5 +1,7 @@
 # Automated DevOps Intake from Outlook to Jira
 
+> **Windows implementation note:** This repository targets Windows-only local development and operation. Any API examples in this architecture reference should be adapted to Windows PowerShell (`Invoke-RestMethod`) for operational use; Bash, Linux paths, `chmod`, cron, systemd, apt, and yum are not required by the MVP implementation.
+
 ## Executive summary
 
 A complete DevOps Intake system for your environment should treat Outlook as the **front door**, Jira as the **system of record**, and a small execution layer as the **action engine**. The most practical design is a shared Outlook mailbox monitored by Power Automate, backed by Jira for request tracking, and extended with Azure Functions or Logic Apps only where the parsing, enrichment, or side effects become too custom for low-code alone. This approach aligns well with Microsoft 365-native email triggers and approvals, Jira issue creation and automation, and least-privilege identity controls in Microsoft Entra ID and Atlassian OAuth. citeturn20view2turn20view3turn20view4turn4search0turn29view1turn10search0
@@ -381,21 +383,26 @@ This workflow should also suppress noisy duplicates. If build 101, 102, and 103 
 
 A Jenkins trigger example using its documented remote API style:
 
-```bash
-curl -X POST \
-  "https://jenkins.example.com/job/devops-remediate/buildWithParameters?JIRA_KEY=OPS-123&ACTION=rerun_failed_stage" \
-  --user "svc_devops:${JENKINS_API_TOKEN}"
+```powershell
+$pair = "svc_devops:$env:JENKINS_API_TOKEN"
+$basicAuth = [Convert]::ToBase64String([Text.Encoding]::ASCII.GetBytes($pair))
+Invoke-RestMethod `
+  -Method Post `
+  -Uri "https://jenkins.example.com/job/devops-remediate/buildWithParameters?JIRA_KEY=OPS-123&ACTION=rerun_failed_stage" `
+  -Headers @{ Authorization = "Basic $basicAuth" }
 ```
 
 A GitHub Actions re-run example follows GitHub’s documented job re-run endpoint pattern:
 
-```bash
-curl -L \
-  -X POST \
-  -H "Accept: application/vnd.github+json" \
-  -H "Authorization: Bearer ${GITHUB_TOKEN}" \
-  -H "X-GitHub-Api-Version: 2026-03-10" \
-  "https://api.github.com/repos/OWNER/REPO/actions/jobs/JOB_ID/rerun"
+```powershell
+Invoke-RestMethod `
+  -Method Post `
+  -Uri "https://api.github.com/repos/OWNER/REPO/actions/jobs/JOB_ID/rerun" `
+  -Headers @{
+    Accept = "application/vnd.github+json"
+    Authorization = "Bearer $env:GITHUB_TOKEN"
+    "X-GitHub-Api-Version" = "2026-03-10"
+  }
 ```
 
 These examples are aligned with the official Jenkins and GitHub documentation. citeturn18view3turn18view4
@@ -521,30 +528,34 @@ GitHub supports repository creation and repository-template flows; GitLab docume
 
 A GitHub template-repo example:
 
-```bash
-curl -L \
-  -X POST \
-  -H "Accept: application/vnd.github+json" \
-  -H "Authorization: Bearer ${GITHUB_TOKEN}" \
-  -H "X-GitHub-Api-Version: 2026-03-10" \
-  "https://api.github.com/repos/TEMPLATE_OWNER/TEMPLATE_REPO/generate" \
-  -d '{
-    "owner":"ORG",
-    "name":"new-service",
-    "private":true
-  }'
+```powershell
+$body = @{
+  owner = "ORG"
+  name = "new-service"
+  private = $true
+} | ConvertTo-Json
+Invoke-RestMethod `
+  -Method Post `
+  -Uri "https://api.github.com/repos/TEMPLATE_OWNER/TEMPLATE_REPO/generate" `
+  -Headers @{
+    Accept = "application/vnd.github+json"
+    Authorization = "Bearer $env:GITHUB_TOKEN"
+    "X-GitHub-Api-Version" = "2026-03-10"
+  } `
+  -ContentType "application/json" `
+  -Body $body
 ```
 
 An Azure DevOps repository-create example follows the documented `git/repositories` create pattern:
 
-```bash
-curl -X POST \
-  -H "Content-Type: application/json" \
-  -H "Authorization: Bearer ${AZDO_TOKEN}" \
-  "https://dev.azure.com/ORG/PROJECT/_apis/git/repositories?api-version=7.1" \
-  -d '{
-    "name":"new-service"
-  }'
+```powershell
+$body = @{ name = "new-service" } | ConvertTo-Json
+Invoke-RestMethod `
+  -Method Post `
+  -Uri "https://dev.azure.com/ORG/PROJECT/_apis/git/repositories?api-version=7.1" `
+  -Headers @{ Authorization = "Bearer $env:AZDO_TOKEN" } `
+  -ContentType "application/json" `
+  -Body $body
 ```
 
 These patterns are aligned with the official platform APIs. citeturn11search8turn11search2
@@ -697,52 +708,46 @@ That is an organizational recommendation based on the separation of responsibili
 
 A minimal Jira create issue request, aligned to Atlassian’s documented create-issue endpoint:
 
-```bash
-curl -X POST \
-  -H "Authorization: Bearer ${JIRA_ACCESS_TOKEN}" \
-  -H "Accept: application/json" \
-  -H "Content-Type: application/json" \
-  "https://your-domain.atlassian.net/rest/api/3/issue" \
-  -d '{
-    "fields": {
-      "project": { "key": "OPS" },
-      "issuetype": { "name": "Task" },
-      "summary": "VM request from Outlook intake",
-      "description": {
-        "type": "doc",
-        "version": 1,
-        "content": [
-          {
-            "type": "paragraph",
-            "content": [
-              { "type": "text", "text": "Request captured from Outlook intake." }
-            ]
-          }
-        ]
-      }
+```powershell
+$body = @{
+  fields = @{
+    project = @{ key = "OPS" }
+    issuetype = @{ name = "Task" }
+    summary = "VM request from Outlook intake"
+    description = @{
+      type = "doc"
+      version = 1
+      content = @(@{
+        type = "paragraph"
+        content = @(@{ type = "text"; text = "Request captured from Outlook intake." })
+      })
     }
-  }'
+  }
+} | ConvertTo-Json -Depth 10
+Invoke-RestMethod `
+  -Method Post `
+  -Uri "https://your-domain.atlassian.net/rest/api/3/issue" `
+  -Headers @{ Authorization = "Bearer $env:JIRA_ACCESS_TOKEN"; Accept = "application/json" } `
+  -ContentType "application/json" `
+  -Body $body
 ```
 
 A minimal Outlook mail send using Microsoft Graph:
 
-```bash
-curl -X POST \
-  -H "Authorization: Bearer ${GRAPH_TOKEN}" \
-  -H "Content-Type: application/json" \
-  "https://graph.microsoft.com/v1.0/users/devops-intake@company.com/sendMail" \
-  -d '{
-    "message": {
-      "subject": "Received: VM Request -> OPS-123",
-      "body": {
-        "contentType": "Text",
-        "content": "Your request has been captured as OPS-123."
-      },
-      "toRecipients": [
-        { "emailAddress": { "address": "developer@company.com" } }
-      ]
-    }
-  }'
+```powershell
+$body = @{
+  message = @{
+    subject = "Received: VM Request -> OPS-123"
+    body = @{ contentType = "Text"; content = "Your request has been captured as OPS-123." }
+    toRecipients = @(@{ emailAddress = @{ address = "developer@company.com" } })
+  }
+} | ConvertTo-Json -Depth 10
+Invoke-RestMethod `
+  -Method Post `
+  -Uri "https://graph.microsoft.com/v1.0/users/devops-intake@company.com/sendMail" `
+  -Headers @{ Authorization = "Bearer $env:GRAPH_TOKEN" } `
+  -ContentType "application/json" `
+  -Body $body
 ```
 
 These patterns follow the documented Jira create-issue and Graph `sendMail` APIs. citeturn19view1turn18view1

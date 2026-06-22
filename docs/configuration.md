@@ -1,12 +1,22 @@
 # Configuration
 
-Configuration is loaded from JSON plus environment variables. The example file is `config.example.json`.
+Configuration is loaded from JSON plus environment variables. The example file is `config.example.json`. Windows PowerShell is the default shell for local setup and examples.
+
+## Recommended Windows setup
+
+```powershell
+python -m venv .venv
+.\.venv\Scripts\Activate.ps1
+python -m pip install -e .
+```
 
 ## Required runtime values
 
-- Jira base URL: `JIRA_BASE_URL`
-- Jira project key: `JIRA_PROJECT_KEY`
-- Outlook source mailbox: `OUTLOOK_SOURCE_MAILBOX`
+```powershell
+$env:JIRA_BASE_URL = "https://your-domain.atlassian.net"
+$env:JIRA_PROJECT_KEY = "OPS"
+$env:OUTLOOK_SOURCE_MAILBOX = "devops-intake@example.com"
+```
 
 ## Secrets
 

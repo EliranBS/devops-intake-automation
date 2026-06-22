@@ -7,7 +7,7 @@ from src.jira.keys import find_jira_keys
 from src.jira.payloads import build_issue_payload
 from src.responders.templates import render_reply
 
-FIX = Path('tests/fixtures')
+FIX = Path(__file__).resolve().parents[1] / 'fixtures'
 
 def load(name): return json.loads((FIX / name).read_text())
 

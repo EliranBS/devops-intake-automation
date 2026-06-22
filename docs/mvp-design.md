@@ -1,6 +1,6 @@
 # MVP Design
 
-The MVP follows the architecture document by keeping Outlook as the intake channel, Jira as the system of record, and side-effecting execution out of scope.
+The MVP follows the architecture document by keeping Outlook as the intake channel, Jira as the system of record, and side-effecting execution out of scope. The supported local workflow is Windows PowerShell.
 
 ## Flow
 
@@ -11,6 +11,19 @@ The MVP follows the architecture document by keeping Outlook as the intake chann
 5. `jira.payloads` builds Jira create payloads from configuration.
 6. `responders.templates` generates requester replies.
 7. `ci.enrichment` defines CI enrichment interfaces and safe stubs.
+
+## Windows operation
+
+Run the local checks from Windows PowerShell:
+
+```powershell
+python -m pytest
+python -m src.intake.pipeline
+.\scripts\validate.ps1
+.\scripts\run-local-demo.ps1
+```
+
+The demo and tests use Python `pathlib` to resolve repository paths and do not require WSL, Git Bash, Linux paths, `chmod`, cron, systemd, apt, or yum.
 
 ## Production hardening needed later
 
