@@ -1,0 +1,1 @@
+{"id":"3","internetMessageId":"<lic1@example>","conversationId":"c3","subject":"Need license seat","from":{"emailAddress":{"address":"user@example.com"}},"body":{"content":"Product: JetBrains\nProject: core\nJustification: development work\nApprover: lead@example.com"}}

@@ -1,0 +1,24 @@
+{
+  "jira": {
+    "base_url": "https://your-domain.atlassian.net",
+    "project_key": "OPS",
+    "issue_type_mapping": {
+      "VM Request": "Service Request",
+      "Access Request": "Service Request",
+      "License Request": "Service Request",
+      "New Project Request": "Task",
+      "CI Failure": "Bug"
+    },
+    "priority_mapping": {
+      "Organizational Mail": "Low",
+      "Incident / Support": "High"
+    },
+    "custom_field_mapping": {
+      "project": "customfield_10010",
+      "approver": "customfield_10011"
+    }
+  },
+  "outlook": {
+    "source_mailbox": "devops-intake@example.com"
+  }
+}

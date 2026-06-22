@@ -1,0 +1,1 @@
+{"id":"4","internetMessageId":"<acc1@example>","conversationId":"c4","subject":"Access request","from":{"emailAddress":{"address":"user@example.com"}},"body":{"content":"System: Jira\nAccess: developer\nJustification: sprint work\nApprover: lead@example.com"}}

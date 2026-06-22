@@ -1,0 +1,1 @@
+{"id":"5","internetMessageId":"<proj1@example>","conversationId":"c5","subject":"New project onboarding","from":{"emailAddress":{"address":"owner@example.com"}},"body":{"content":"Project name: phoenix\nOwner: owner@example.com\nRepo platform: GitHub\nCI type: GitHub Actions\nEnvironment needs: dev and test\nApprover: director@example.com"}}
