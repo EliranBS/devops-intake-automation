@@ -20,5 +20,9 @@
   },
   "outlook": {
     "source_mailbox": "devops-intake@example.com"
+  },
+  "correlation": {
+    "sqlite_path": ".data/correlation.sqlite3",
+    "environment_variable": "INTAKE_CORRELATION_DB_PATH"
   }
 }

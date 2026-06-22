@@ -4,12 +4,12 @@ import json
 from pathlib import Path
 
 from src.classifier.rules import classify_email
-from src.correlation.strategy import InMemoryCorrelationStore, correlate
+from src.correlation.strategy import CorrelationStore, SQLiteCorrelationStore, correlate
 from src.intake.models import IntakeDecision
 from src.outlook.normalizer import normalize_outlook_message
 
 
-def process_message(payload: dict, source_mailbox: str, store: InMemoryCorrelationStore) -> IntakeDecision:
+def process_message(payload: dict, source_mailbox: str, store: CorrelationStore) -> IntakeDecision:
     email = normalize_outlook_message(payload, source_mailbox)
     classification = classify_email(email)
     action, jira_key, duplicate_of, fp = correlate(email, classification, store)
@@ -19,7 +19,7 @@ def process_message(payload: dict, source_mailbox: str, store: InMemoryCorrelati
 def run_fixture_demo(fixtures_dir: Path | None = None, source_mailbox: str = "devops-intake@example.com") -> list[IntakeDecision]:
     repo_root = Path(__file__).resolve().parents[2]
     fixture_root = fixtures_dir or repo_root / "tests" / "fixtures"
-    store = InMemoryCorrelationStore()
+    store = SQLiteCorrelationStore()
     decisions: list[IntakeDecision] = []
     for fixture_path in sorted(fixture_root.glob("*.json")):
         payload = json.loads(fixture_path.read_text(encoding="utf-8"))
